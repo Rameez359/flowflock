@@ -3,9 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const CryptoJS = require("crypto-js");
 var router = express.Router();
-const {client} = require('../private/database/connectDb');
 const userController = require('../controllers/userController');
-const https = require('https');
 
 
 /* GET home page. */
