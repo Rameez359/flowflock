@@ -1,12 +1,19 @@
 var express = require('express');
 var router = express.Router();
+const multer = require('multer');
 const userController = require('../controllers/userController');
 const verifyToken = require('../controllers/verifyToken');
+// const storage = require('../controllers/fileUpload');
 const { ObjectId } = require("mongodb");
 const bodyParser = require('body-parser');
-
+const storage = multer.memoryStorage(); // Store the file in memory
+const upload = multer({ storage });
+// const upload = multer({ storage: storage });
 router.use(bodyParser.json());
 router.use(verifyToken);
+
+// console.log(`upload ${json.stringify(upload)}`)
+
 /* GET users listing. */
 router.get('/', async (req, res, next)=> {
   try{
@@ -112,6 +119,18 @@ router.delete('/delete/:id', async(req, res, next)=>{
     else{
       res.json({"msg":`User not found with id# : ${userId}`});
     }
+  }catch(error){
+    res.json({"Error":`Something went wrong : ${error}`});
+  }
+});
+router.post('/upload', upload.single('image'), async(req, res) => {
+  try{
+    const imageBuffer = req.file.buffer; // Buffer containing the uploaded image
+    const response = await userController.uploadProfilePic(imageBuffer);
+    if(response){
+      console.log('Inserted document with ID:', response.insertedId);
+      res.json(response);
+    }     
   }catch(error){
     res.json({"Error":`Something went wrong : ${error}`});
   }

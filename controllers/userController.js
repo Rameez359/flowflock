@@ -71,10 +71,23 @@ const deleteUserById = async (userId)=>{
     return({"Error":`Something went wrong : ${error}`});
   }
 }
+
+const uploadProfilePic = async (imageBuffer)=>{
+  try{
+    const response = await client.db('xTwitter').collection('users').insertOne({ image: imageBuffer });
+    if(response){
+      console.log(`Image Uploaded: [${JSON.stringify(response)}]`);
+      return response;
+    }
+  }catch(error){
+    return({"Error":`Something went wrong : ${error}`});
+  }
+}
 module.exports = {
   getAllUsers,
   getUserByField,
   createNewUser,
   updateUserById,
-  deleteUserById
+  deleteUserById,
+  uploadProfilePic
 }
