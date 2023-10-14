@@ -24,28 +24,6 @@ router.get('/', async (req, res, next)=> {
   }
 });
 
-/* GET user by Id. */
-router.get('/:id', async (req, res, next)=>{
-  try{
-    const userId = req.params.id;
-    console.log(`Get user by id start with the Request: ${userId}`);
-    if(!userId){
-      res.status(400).json({"Error": "Incomplete or invalid data. Please provide all required information."}
-      );
-    }
-    const filter = {'_id':new ObjectId(userId)};
-    console.log(`Filter: ${JSON.stringify(filter)}`);
-    const response = await userController.getUserByField(filter);
-    if (response) {
-      res.status(200).json(response);
-    } else {
-      res.status(404).json({ "Error": 'User not found' });
-    }
-  }catch (error) {
-    res.json({"Error":`Something went wrong with productId: ${error}`});
-  }
-});
-
 /* Create new user. */
 router.post('/create', async(req, res, next)=>{
   try{
@@ -133,6 +111,27 @@ router.post('/upload', upload.single('image'), async(req, res) => {
     }     
   }catch(error){
     res.json({"Error":`Something went wrong : ${error}`});
+  }
+});
+/* GET user by Id. */
+router.get('/:id', async (req, res, next)=>{
+  try{
+    const userId = req.params.id;
+    console.log(`Get user by id start with the Request: ${userId}`);
+    if(!userId){
+      res.status(400).json({"Error": "Incomplete or invalid data. Please provide all required information."}
+      );
+    }
+    const filter = {'_id':new ObjectId(userId)};
+    console.log(`Filter: ${JSON.stringify(filter)}`);
+    const response = await userController.getUserByField(filter);
+    if (response) {
+      res.status(200).json(response);
+    } else {
+      res.status(404).json({ "Error": 'User not found' });
+    }
+  }catch (error) {
+    res.json({"Error":`Something went wrong with productId: ${error}`});
   }
 });
 module.exports = router;

@@ -31,7 +31,7 @@ router.post('/login', async(req, res, next)=>{
       res.status(200).json({ token });
     }
   }catch (error) {
-    res.json({"Error":`Something went wrong with productId: ${error}`});
+    res.json({"Error":`Something went wrong : ${error}`});
   }
 });
 

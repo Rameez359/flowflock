@@ -2,12 +2,10 @@ const bcrypt = require('bcrypt');
 const database = require('../private/database/connectDb');
 const { ObjectId } = require("mongodb");
 
-const client = database.getClient();
-
+const db =  database.getDbClient();
 const getAllUsers = async ()=> {
   try{
-      const collection = client.db('xTwitter').collection('users'); 
-      const response = await collection.find().toArray();
+      const response = await db.collection('users').find().toArray();
       return response;
   }catch (error) {
       console.error('Error fetching users:', error);
@@ -17,7 +15,7 @@ const getAllUsers = async ()=> {
 
 const getUserByField = async (filter)=>{
   try{
-      const response = await client.db('xTwitter').collection('users').findOne(filter);
+      const response = await db.collection('users').findOne(filter);
       console.log(`Function getUserByField Ended with response: ${JSON.stringify(response)}`);
       return response;
     }catch (error) {
@@ -32,7 +30,7 @@ const createNewUser = async (document)=>{
     const password = await bcrypt.hash(document.password, 10);
     document.password = password;
 
-    const response = await client.db('xTwitter').collection('users').insertOne(document);
+    const response = await db.collection('users').insertOne(document);
     if(response){
       console.log('Inserted document with ID:', response.insertedId);
     }
@@ -47,7 +45,7 @@ const updateUserById = async (userId, document)=>{
   try{
     const query = {_id:new ObjectId(userId)};
     const updateDoc = { $set: document};
-    const response = await client.db('xTwitter').collection('users').findOneAndUpdate(query,updateDoc,{returnNewDocument: "true"});
+    const response = await db.collection('users').findOneAndUpdate(query,updateDoc,{returnNewDocument: "true"});
     if(response){
       console.log(`Updated Document is: [${JSON.stringify(response)}]`);
     }
@@ -56,10 +54,11 @@ const updateUserById = async (userId, document)=>{
     return({"Error":`Something went wrong : ${error}`});
   }
 }
+
 const deleteUserById = async (userId)=>{
   try{
     query = {_id:new ObjectId(userId)};
-    const response = await client.db('xTwitter').collection('users').findOneAndDelete(query);
+    const response = await db.collection('users').findOneAndDelete(query);
     if(response){
       console.log(`Deleted Document is: [${JSON.stringify(response)}]`);
       return response;
@@ -74,7 +73,7 @@ const deleteUserById = async (userId)=>{
 
 const uploadProfilePic = async (imageBuffer)=>{
   try{
-    const response = await client.db('xTwitter').collection('users').insertOne({ image: imageBuffer });
+    const response = await db.collection('users').insertOne({ image: imageBuffer });
     if(response){
       console.log(`Image Uploaded: [${JSON.stringify(response)}]`);
       return response;
