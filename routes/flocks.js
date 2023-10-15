@@ -13,11 +13,26 @@ router.get('/', async (req, res, next) => {
 /* Create new flock. */
 router.post('/create', async (req, res, next) => {
     console.log(`Create Flock payload request : ${JSON.stringify(req.body)}`);
+    const payload = req.body;
+    const userId = req.decoded.userId;
     try {
-        const result = await flockController.createFlock(req);
+        const result = await flockController.createFlock(userId, payload);
         res.json({ result });
     } catch (error) {
         return ({ "Error": `Something went wrong : ${error}` });
+    }
+});
+
+/* Add new comment on flock. */
+router.post('/addComment', async (req, res, next) => {
+    try {
+        console.log(`Create Flock payload request : ${JSON.stringify(req.body)}`);
+        const payload = req.body;
+        const userId = req.decoded.userId;
+        const result = await flockController.addFlockComment(userId, payload);
+        res.json({ result });
+    } catch (error) {
+        return ({ "Exception": `Exception in add comment: ${error}` });
     }
 });
 

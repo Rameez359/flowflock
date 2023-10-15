@@ -103,16 +103,27 @@ const addFollow = async (followId, userId) => {
   }
 }
 
-const allFollowers = async (userId) => {
+//Common Function
+const getConnections = async (userId, connectionName) => {
   userId = new ObjectId(userId);
-  try{
-    const followerRes = await db.collection('users').findOne({ _id:  userId },{following: 1, _id: 0});
+  try {
+    const followerRes = await db.collection('users').aggregate([
+      {
+        $match: { "_id": userId }
+      },
+      {
+        $project: {
+          _id: 0,
+          [connectionName]: 1
+        }
+      }
+    ]).toArray();
+
     return followerRes;
-  }catch(error){
-    return ({ "Error": `Error in list all followers : ${error}` });
+  } catch (error) {
+    return ({ "Error": `Error in connections : ${error}` });
   }
 }
-
 module.exports = {
   getAllUsers,
   getUserByField,
@@ -121,5 +132,5 @@ module.exports = {
   deleteUserById,
   uploadProfilePic,
   addFollow,
-  allFollowers
+  getConnections
 }

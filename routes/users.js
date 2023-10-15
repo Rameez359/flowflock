@@ -122,11 +122,24 @@ router.post('/upload', upload.single('image'), async (req, res) => {
 /* View All Followers */
 router.get('/allFollower', async (req, res, next) => {
   const userId = req.decoded.userId;
+  const connectionName = 'following';
   try {
-      const result = await userController.allFollowers(userId);
-      res.json(result);
+    const result = await userController.getConnections(userId, connectionName);
+    res.json(result);
   } catch (error) {
-      return ({ "Error": `${error}` });
+    return ({ "Error in All follower": `${error}` });
+  }
+});
+
+/* View All Following */
+router.get('/allFollowing', async (req, res, next) => {
+  const userId = req.decoded.userId;
+  const connectionName = 'followers';
+  try {
+    const result = await userController.getConnections(userId, connectionName);
+    res.json(result);
+  } catch (error) {
+    return ({ "Error": `${error}` });
   }
 });
 
@@ -158,10 +171,10 @@ router.put('/follow', async (req, res, next) => {
   const followId = req.query.followId;
   const userId = req.decoded.userId;
   try {
-      const result = await userController.addFollow(followId, userId);
-      res.json(result);
+    const result = await userController.addFollow(followId, userId);
+    res.json(result);
   } catch (error) {
-      return ({ "Error": `${error}` });
+    return ({ "Error": `${error}` });
   }
 });
 
