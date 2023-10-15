@@ -4,7 +4,9 @@ const jwt = require('jsonwebtoken');
 const CryptoJS = require("crypto-js");
 var router = express.Router();
 const userController = require('../controllers/userController');
+require('dotenv').config();
 
+const secret_key = process.env.SECRET_KEY;
 
 /* GET home page. */
 router.get('/', async function(req, res, next) {
@@ -27,7 +29,7 @@ router.post('/login', async(req, res, next)=>{
     if (!passwordMatch) {
       return res.status(401).json({ Error: 'Invalid username or password' });
     }else{
-      const token = jwt.sign({ userId: userResponse._id, userName:userResponse.userName}, 'your-secret-key', { expiresIn: '1h' });
+      const token = jwt.sign({ userId: userResponse._id, userName:userResponse.userName}, secret_key, { expiresIn: '24h' });
       res.status(200).json({ token });
     }
   }catch (error) {
