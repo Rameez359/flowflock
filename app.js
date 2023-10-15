@@ -8,7 +8,6 @@ const cors = require('cors');
 const database = require('./private/database/connectDb');
 database.connect();
 
-
 var app = express();
 const corsOptions = {
   origin: 'http://example.com', // Replace with the actual origin you want to allow
