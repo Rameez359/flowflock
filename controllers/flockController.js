@@ -12,7 +12,7 @@ const createFlock = async (userId, payload) => {
         }
         console.log(`Flock HashTags: [${JSON.stringify(hashtTags)}]`);
         if (!content) {
-            return {'Error':'Flock body is empty'}
+            return { 'Error': 'Flock body is empty' }
         }
         const insertObj = {
             userId: new ObjectId(userId),
@@ -38,23 +38,74 @@ const addFlockComment = async (userId, payload) => {
             comment = payload.comment || '';
         }
         if (!(flockId && comment)) {
-            return { 'Error': "Invalid flockId or comment" };
+            return { 'response': "Invalid flockId or comment", statusCode: 400 };
         }
         const insertedObj = {
             flockId: new ObjectId(flockId),
+            userId: new ObjectId(userId),
             comment: comment,
-            createdAt : new Date(),
-            updatedAt : new Date()
+            createdAt: new Date(),
+            updatedAt: new Date()
         }
         const commentResp = await db.collection('comments').insertOne(insertedObj);
-        return commentResp;
+        return { response: commentResp, statusCode: 200 };
     } catch (error) {
-        return { 'Exception': `Exception in add flock comment : ${error}` };
+        return { 'response': `Exception in add flock comment : ${error}`, statusCode: 500 };
     }
 }
 
+const showFlockComments = async (payload) => {
+    try {
+        let flockId;
+        let pipeline = [];
+        if (payload) {
+            flockId = payload.flockId || '';
+        }
+        if (!flockId) {
+            return { 'response': "Invalid flockId", statusCode: 400 };
+        }
+        flockId = new ObjectId(flockId);
+        console.log(`flockId response : ${JSON.stringify(flockId)}`);
+        pipeline.push({
+            $match: {
+                "flockId": flockId
+            }
+        },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "userId",
+                    foreignField: "_id",
+                    as: "userDetail"
+                }
+            },
+            {
+                $unwind: {
+                    path: "$userDetail"
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id",
+                    comment: { "$first": "$comment" },
+                    createdAt: { "$first": "$createdAt" },
+                    userId: { "$first": "$userDetail._id" },
+                    name: { "$first": "$userDetail.name" },
+                    userName: { "$first": "$userDetail.userName" },
+                }
+            });
+        const commentsResp = await db.collection('comments').aggregate(pipeline).toArray();
+        pipeline.push({$count: "total_comments"});
+        const commentsCount = await db.collection('comments').aggregate(pipeline).toArray();
+        const response = {results:commentsResp, count: commentsCount[0].total_comments};
+        return { response: response, statusCode: 200 };
+    } catch (error) {
+        return { 'response': `Exception in show flock all comments : ${error}`, statusCode: 500 };
+    }
+}
 
 module.exports = {
     createFlock,
-    addFlockComment
+    addFlockComment,
+    showFlockComments
 }

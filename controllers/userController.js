@@ -16,7 +16,7 @@ const getAllUsers = async () => {
 const getUserByField = async (filter) => {
   try {
     const response = await db.collection('users').findOne(filter);
-    console.log(`Function getUserByField Ended with response: ${JSON.stringify(response)}`);
+    // console.log(`Function getUserByField Ended with response: ${JSON.stringify(response)}`);
     return response;
   } catch (error) {
     console.error('Error fetching users:', error);
@@ -84,16 +84,16 @@ const uploadProfilePic = async (imageBuffer) => {
 }
 
 const addFollow = async (followId, userId) => {
-  if (!(followId, userId)) {
-    res.status(400).json(
-      { "Error": "Incomplete or invalid data. Please provide all required information." }
-    );
-  }
-  followId = new ObjectId(followId);
-  userId = new ObjectId(userId);
-  console.log(`Follow id : [${followId}] \n Follower id : [${userId}]`);
-
   try {
+    if (!(followId, userId)) {
+      res.status(400).json(
+        { "Error": "Incomplete or invalid data. Please provide all required information." }
+      );
+    }
+    followId = new ObjectId(followId);
+    userId = new ObjectId(userId);
+    console.log(`Follow id : [${followId}] \n Follower id : [${userId}]`);
+
     const followerRes = await db.collection('users').findOneAndUpdate({ _id: userId }, { $push: { following: followId } }, { returnNewDocument: "true" });
     const followingRes = await db.collection('users').findOneAndUpdate({ _id: followId }, { $push: { followers: userId } }, { returnNewDocument: "true" });
     result = { userResponse: followerRes, followerResponse: followingRes };
