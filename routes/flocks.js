@@ -12,10 +12,10 @@ router.get('/', async (req, res, next) => {
 
 /* Create new flock. */
 router.post('/create', async (req, res, next) => {
-    console.log(`Create Flock payload request : ${JSON.stringify(req.body)}`);
-    const payload = req.body;
-    const userId = req.decoded.userId;
     try {
+        console.log(`Create Flock payload request : ${JSON.stringify(req.body)}`);
+        const payload = req.body;
+        const userId = req.decoded.userId;
         const result = await flockController.createFlock(userId, payload);
         res.json({ result });
     } catch (error) {
@@ -36,7 +36,7 @@ router.post('/addComment', async (req, res, next) => {
     }
 });
 
-/* Add new comment on flock. */
+/* Show all comments on flock. */
 router.get('/showAllComment', async (req, res, next) => {
     try {
         console.log(`Show all comments on Flock payload request : ${JSON.stringify(req.query)}`);
@@ -54,7 +54,7 @@ router.post('/addLike', async (req, res, next) => {
         console.log(`Add new like on payload request : ${JSON.stringify(req.body)}`);
         const payload = req.body;
         const userId = req.decoded.userId;
-        const result = await flockController.addFlockComment(userId, payload);
+        const result = await flockController.addFlockLike(userId, payload);
         res.json({ result });
     } catch (error) {
         res.status(500).json({ "Exception": `Exception in add like: ${error}` }, { statusCode: 500 });
