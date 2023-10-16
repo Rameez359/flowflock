@@ -18,14 +18,15 @@ async function connect() {
         }
     }
 }
-function getClient() {
+function getDbClient() {
     if (!client) {
         throw new Error('Database connection has not been established.');
     }
-      return client;  
+    const db = client.db('xTwitter');
+    return db;
     }
 module.exports = {
     connect,
-    getClient
+    getDbClient
 }
     // run().catch(console.dir)

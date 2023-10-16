@@ -4,21 +4,23 @@ const jwt = require('jsonwebtoken');
 const CryptoJS = require("crypto-js");
 var router = express.Router();
 const userController = require('../controllers/userController');
+require('dotenv').config();
 
+const secret_key = process.env.SECRET_KEY;
 
 /* GET home page. */
-router.get('/', async function(req, res, next) {
-  res.render('index',{title:'Express'});
+router.get('/', async function (req, res, next) {
+  res.render('index', { title: 'Express' });
 });
 
 /*Login and Get Token. */
-router.post('/login', async(req, res, next)=>{
+router.post('/login', async (req, res, next) => {
   const { userName, password } = req.body;
-  if(!(userName, password)){
-    res.status(400).json({"Error": "Incomplete or invalid data. Please provide all required information."});
+  if (!(userName, password)) {
+    res.status(400).json({ "Error": "Incomplete or invalid data. Please provide all required information." });
   }
-  try{
-    const filter = {"userName":userName}
+  try {
+    const filter = { "userName": userName }
     const userResponse = await userController.getUserByField(filter);
     console.log(`UserResponse start with response : [${JSON.stringify(userResponse)}]`);
 
@@ -26,12 +28,12 @@ router.post('/login', async(req, res, next)=>{
     console.log(`Password Match :${passwordMatch}`)
     if (!passwordMatch) {
       return res.status(401).json({ Error: 'Invalid username or password' });
-    }else{
-      const token = jwt.sign({ userId: userResponse._id, userName:userResponse.userName}, 'your-secret-key', { expiresIn: '1h' });
+    } else {
+      const token = jwt.sign({ userId: userResponse._id, userName: userResponse.userName }, secret_key, { expiresIn: '24h' });
       res.status(200).json({ token });
     }
-  }catch (error) {
-    res.json({"Error":`Something went wrong with productId: ${error}`});
+  } catch (error) {
+    res.json({ "Error": `Something went wrong : ${error}` });
   }
 });
 

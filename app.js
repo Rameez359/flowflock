@@ -8,7 +8,6 @@ const cors = require('cors');
 const database = require('./private/database/connectDb');
 database.connect();
 
-
 var app = express();
 const corsOptions = {
   origin: 'http://example.com', // Replace with the actual origin you want to allow
@@ -23,6 +22,7 @@ app.use(cors(corsOptions));
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var flocksRouter = require('./routes/flocks');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -36,6 +36,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/flocks', flocksRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

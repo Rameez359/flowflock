@@ -1,16 +1,19 @@
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-function verifyToken(req, res, next) {
+const secret_key = process.env.SECRET_KEY;
+
+const verifyToken = (req, res, next)=>{
   const token = req.headers.authorization;
-  console.log(`Token is ${token}`);
   if (!token) {
-    return res.status(401).json({ error: 'Unauthorized' });
+    return res.status(401).json({ error: 'Unauthorized request' });
   }
-  jwt.verify(token, 'your-secret-key', (err, decoded) => {
+
+  jwt.verify(token, secret_key, (err, decoded) => {
     if (err) {
       return res.status(401).json({ error: 'Invalid token' });
     }
-    req.userId = decoded.userId;
+    req.decoded = decoded;
     next();
   });
 }
