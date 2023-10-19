@@ -95,17 +95,48 @@ const showFlockComments = async (payload) => {
                 }
             });
         const commentsResp = await db.collection('comments').aggregate(pipeline).toArray();
-        pipeline.push({$count: "total_comments"});
+        pipeline.push({ $count: "total_comments" });
         const commentsCount = await db.collection('comments').aggregate(pipeline).toArray();
-        const response = {results:commentsResp, count: commentsCount[0].total_comments};
+        const response = { results: commentsResp, count: commentsCount[0].total_comments };
         return { response: response, statusCode: 200 };
     } catch (error) {
-        return { 'response': `Exception in show flock all comments : ${error}`, statusCode: 500 };
+        return { 'response': `Exception in show all flock comments : ${error}`, statusCode: 500 };
     }
+}
+
+const addFlockLike = async (userId, payload) => {
+    try {
+        let flockId;
+        if (payload) {
+            flockId = payload.flockId || '';
+        }
+        if (!(flockId)) {
+            return { 'response': "Invalid flockId", statusCode: 400 };
+        }
+        flockId = new ObjectId(flockId);
+        userId = new ObjectId(userId);
+
+        const likeResp = await db.collection('xTweets').findOneAndUpdate(
+            { '_id': flockId },
+            { 
+                $push: { 'likeBy': userId },
+                $inc: { 'totalLike': 1 }
+            },
+            { returnNewDocument: "true" }
+        );
+        if(likeResp) 
+            return{ statusCode:204};
+        else 
+            return{ 'response':'Invalid flockId', statusCode:400};
+    } catch (error) {
+        return { 'response': `Exception in add like on flock : ${error}`, statusCode: 500 };
+    }
+
 }
 
 module.exports = {
     createFlock,
+    addFlockLike,
     addFlockComment,
     showFlockComments
 }

@@ -55,7 +55,7 @@ router.post('/addLike', async (req, res, next) => {
         const payload = req.body;
         const userId = req.decoded.userId;
         const result = await flockController.addFlockLike(userId, payload);
-        res.json({ result });
+        res.status(result?.statusCode).json({ response : result.response });
     } catch (error) {
         res.status(500).json({ "Exception": `Exception in add like: ${error}` }, { statusCode: 500 });
     }
