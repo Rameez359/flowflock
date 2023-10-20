@@ -118,25 +118,51 @@ const addFlockLike = async (userId, payload) => {
 
         const likeResp = await db.collection('xTweets').findOneAndUpdate(
             { '_id': flockId },
-            { 
+            {
                 $push: { 'likeBy': userId },
                 $inc: { 'totalLike': 1 }
             },
             { returnNewDocument: "true" }
         );
-        if(likeResp) 
-            return{ statusCode:204};
-        else 
-            return{ 'response':'Invalid flockId', statusCode:400};
+        if (likeResp)
+            return { statusCode: 204 };
+        else
+            return { 'response': 'Invalid flockId', statusCode: 400 };
     } catch (error) {
         return { 'response': `Exception in add like on flock : ${error}`, statusCode: 500 };
     }
 
 }
 
+const saveFlock = async (userId, payload) => {
+    try {
+        let flockId;
+        if (payload) {
+            flockId = payload.flockId || '';
+        }
+        if (!(flockId)) {
+            return { 'response': "Invalid flockId", statusCode: 400 };
+        }
+        flockId = new ObjectId(flockId);
+        userId = new ObjectId(userId);
+        const saveResp = await db.collection('users').findOneAndUpdate(
+            { '_id': userId },
+            { $push: { 'savedFlock': flockId } },
+            { returnNewDocument: "true" }
+        );
+        if (saveResp)
+            return { statusCode: 204 };
+        else
+            return { 'response': "UserId not exist.", statusCode: 400 };
+    } catch (error) {
+        return { 'response': `Exception in saving flock : ${error}`, statusCode: 500 };
+    }
+}
+
 module.exports = {
     createFlock,
     addFlockLike,
     addFlockComment,
-    showFlockComments
+    showFlockComments,
+    saveFlock
 }
