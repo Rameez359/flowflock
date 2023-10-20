@@ -51,7 +51,7 @@ router.get('/showAllComment', async (req, res, next) => {
 /* Add new like on flock. */
 router.post('/addLike', async (req, res, next) => {
     try {
-        console.log(`Add new like on payload request : ${JSON.stringify(req.body)}`);
+        console.log(`Add new like on flock payload request : ${JSON.stringify(req.body)}`);
         const payload = req.body;
         const userId = req.decoded.userId;
         const result = await flockController.addFlockLike(userId, payload);
@@ -60,5 +60,19 @@ router.post('/addLike', async (req, res, next) => {
         res.status(500).json({ "Exception": `Exception in add like: ${error}` }, { statusCode: 500 });
     }
 });
+
+/* Add new like on flock. */
+router.post('/saveFlock', async (req, res, next) => {
+    try {
+        console.log(`Save new flock payload request : ${JSON.stringify(req.body)}`);
+        const payload = req.body;
+        const userId = req.decoded.userId;
+        const result = await flockController.saveFlock(userId, payload);
+        res.status(result?.statusCode).json({ response : result.response });
+    } catch (error) {
+        res.status(500).json({ "Exception": `Exception in add like: ${error}` }, { statusCode: 500 });
+    }
+});
+
 
 module.exports = router;
