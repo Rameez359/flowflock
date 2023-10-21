@@ -30,7 +30,7 @@ router.post('/addComment', async (req, res, next) => {
         const payload = req.body;
         const userId = req.decoded.userId;
         const result = await flockController.addFlockComment(userId, payload);
-        res.status(result?.statusCode).json({ response : result.response });
+        res.status(result?.statusCode).json({ response: result.response });
     } catch (error) {
         res.status(500).json({ "Exception": `Exception in add comment: ${error}` });
     }
@@ -42,7 +42,7 @@ router.get('/showAllComment', async (req, res, next) => {
         console.log(`Show all comments on Flock payload request : ${JSON.stringify(req.query)}`);
         const payload = req.query;
         const result = await flockController.showFlockComments(payload);
-        res.status(result?.statusCode).json({ response : result.response });
+        res.status(result?.statusCode).json({ response: result.response });
     } catch (error) {
         res.status(500).json({ "Exception": `Exception in show all comments: ${error}` });
     }
@@ -55,24 +55,36 @@ router.post('/addLike', async (req, res, next) => {
         const payload = req.body;
         const userId = req.decoded.userId;
         const result = await flockController.addFlockLike(userId, payload);
-        res.status(result?.statusCode).json({ response : result.response });
+        res.status(result?.statusCode).json({ response: result.response });
     } catch (error) {
         res.status(500).json({ "Exception": `Exception in add like: ${error}` }, { statusCode: 500 });
     }
 });
 
-/* Add new like on flock. */
+/* Save flock. */
 router.post('/saveFlock', async (req, res, next) => {
     try {
-        console.log(`Save new flock payload request : ${JSON.stringify(req.body)}`);
-        const payload = req.body;
+        console.log(`Save new flock payload request : ${JSON.stringify(req.query)}`);
+        const payload = req.query;
         const userId = req.decoded.userId;
         const result = await flockController.saveFlock(userId, payload);
-        res.status(result?.statusCode).json({ response : result.response });
+        res.status(result?.statusCode).json({ response: result.response });
     } catch (error) {
         res.status(500).json({ "Exception": `Exception in add like: ${error}` }, { statusCode: 500 });
     }
 });
 
+/* View saved flock.. */
+router.post('/viewSavedFlock', async (req, res, next) => {
+    try {
+        console.log(`View saved flock payload request : ${JSON.stringify(req.query)}`);
+        const payload = req.query;
+        const userId = req.decoded.userId;
+        const result = await flockController.ViewSavedFlock(userId);
+        res.status(result?.statusCode).json({ response: result.response });
+    } catch (error) {
+        res.status(500).json({ "Exception": `Exception in add like: ${error}` }, { statusCode: 500 });
+    }
+});
 
 module.exports = router;
