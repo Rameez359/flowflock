@@ -75,12 +75,10 @@ router.post('/saveFlock', async (req, res, next) => {
 });
 
 /* View saved flock.. */
-router.post('/viewSavedFlock', async (req, res, next) => {
+router.get('/viewSavedFlock', async (req, res, next) => {
     try {
-        console.log(`View saved flock payload request : ${JSON.stringify(req.query)}`);
-        const payload = req.query;
         const userId = req.decoded.userId;
-        const result = await flockController.ViewSavedFlock(userId);
+        const result = await flockController.viewSavedFlock(userId);
         res.status(result?.statusCode).json({ response: result.response });
     } catch (error) {
         res.status(500).json({ "Exception": `Exception in add like: ${error}` }, { statusCode: 500 });
