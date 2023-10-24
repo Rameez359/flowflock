@@ -1,3 +1,4 @@
+const { json } = require('express');
 const database = require('../private/database/connectDb');
 const { ObjectId } = require("mongodb");
 const db = database.getDbClient();
@@ -153,13 +154,44 @@ const saveFlock = async (userId, payload) => {
         if (saveResp)
             return { statusCode: 204 };
         else
-            return { 'response': "UserId not exist.", statusCode: 400 };
+            return { 'response': "User not exist.", statusCode: 400 };
     } catch (error) {
         return { 'response': `Exception in saving flock : ${error}`, statusCode: 500 };
     }
 }
 
-const viewSavedFlock = async  (userId) => {
+const viewSavedFlock = async (userId) => {
+    try {
+        if (!userId) return { 'response': "userId is missing", statusCode: 400 }
+        console.log(`user id is : ${userId}`);
+        userId = new ObjectId(userId);
+        const savedFlock = await db.collection('users').aggregate([
+            {
+                $match: { '_id': userId }
+            },
+            {
+                $lookup: {
+                    from: 'xTweets',
+                    localField: 'savedFlock',
+                    foreignField: '_id',
+                    as: 'myItems'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    'myItems': 1
+                }
+            }
+        ]).toArray();
+        console.log(`Saved Flock is : ${JSON.stringify(savedFlock[0].myItems)}`);
+        if (savedFlock)
+            return { 'response': savedFlock[0].myItems, statusCode: 200 };
+        else
+            return { 'response': `User not exist`, statusCode: 400 };
+    } catch (error) {
+        return { 'response': `Exception in saving flock : ${error}`, statusCode: 500 };
+    }
 }
 
 module.exports = {
