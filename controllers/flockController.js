@@ -1,4 +1,3 @@
-const { json } = require('express');
 const database = require('../private/database/connectDb');
 const { ObjectId } = require("mongodb");
 const db = database.getDbClient();
