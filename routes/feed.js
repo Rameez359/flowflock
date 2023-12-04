@@ -6,40 +6,17 @@ var router = express.Router();
 router.use(verifyToken);
 
 router.get('/', async (req, res, next) => {
-  const { userId, userName } = req.decoded;
-  res.json({ userId, userName });
+    const { userId, userName } = req.decoded;
+    res.json({ userId, userName });
 });
 router.get('/get_feed', async (req, res, next) => {
-  try{
-  const userId = req.decoded.userId;
-  console.log(`user id ${userId}`);
-  const result = await feedController.getUserFeed(userId);
-  res.status(result?.statusCode).json({ response: result.response });
-  } catch (error) {
-    res.status(500).json({ "Exception": `Exception in get feed: ${error}` });
-  }
+    try {
+        const userId = req.decoded.userId;
+        console.log(`user id ${userId}`);
+        const result = await feedController.getUserFeed(userId);
+        res.status(result?.statusCode).json({ response: result.response });
+    } catch (error) {
+        res.status(500).json({ Exception: `Exception in get feed: ${error}` });
+    }
 });
 module.exports = router;
-
-// [
-//   {
-//     '$match': {
-//       '_id': new ObjectId('6509f703c62ecf2a6d4befff')
-//     }
-//   }, {
-//     '$project': {
-//       'following': 1
-//     }
-//   }, {
-//     '$lookup': {
-//       'from': 'xTweets',
-//       'localField': 'following',
-//       'foreignField': 'userId',
-//       'as': 'result'
-//     }
-//   }, {
-//     '$sort': {
-//       'result.createdAt': -1
-//     }
-//   }
-// ]
