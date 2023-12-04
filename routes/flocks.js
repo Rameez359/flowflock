@@ -19,7 +19,7 @@ router.post('/create', async (req, res, next) => {
         const result = await flockController.createFlock(userId, payload);
         res.json({ result });
     } catch (error) {
-        return ({ "Error": `Something went wrong : ${error}` });
+        return { Error: `Something went wrong : ${error}` };
     }
 });
 
@@ -32,7 +32,7 @@ router.post('/addComment', async (req, res, next) => {
         const result = await flockController.addFlockComment(userId, payload);
         res.status(result?.statusCode).json({ response: result.response });
     } catch (error) {
-        res.status(500).json({ "Exception": `Exception in add comment: ${error}` });
+        res.status(500).json({ Exception: `Exception in add comment: ${error}` });
     }
 });
 
@@ -44,7 +44,7 @@ router.get('/showAllComment', async (req, res, next) => {
         const result = await flockController.showFlockComments(payload);
         res.status(result?.statusCode).json({ response: result.response });
     } catch (error) {
-        res.status(500).json({ "Exception": `Exception in show all comments: ${error}` });
+        res.status(500).json({ Exception: `Exception in show all comments: ${error}` });
     }
 });
 
@@ -57,7 +57,7 @@ router.post('/addLike', async (req, res, next) => {
         const result = await flockController.addFlockLike(userId, payload);
         res.status(result?.statusCode).json({ response: result.response });
     } catch (error) {
-        res.status(500).json({ "Exception": `Exception in add like: ${error}` }, { statusCode: 500 });
+        res.status(500).json({ Exception: `Exception in add like: ${error}` }, { statusCode: 500 });
     }
 });
 
@@ -70,7 +70,7 @@ router.post('/saveFlock', async (req, res, next) => {
         const result = await flockController.saveFlock(userId, payload);
         res.status(result?.statusCode).json({ response: result.response });
     } catch (error) {
-        res.status(500).json({ "Exception": `Exception in add like: ${error}` }, { statusCode: 500 });
+        res.status(500).json({ Exception: `Exception in add like: ${error}` }, { statusCode: 500 });
     }
 });
 
@@ -81,7 +81,7 @@ router.get('/viewSavedFlock', async (req, res, next) => {
         const result = await flockController.viewSavedFlock(userId);
         res.status(result?.statusCode).json({ response: result.response });
     } catch (error) {
-        res.status(500).json({ "Exception": `Exception in add like: ${error}` }, { statusCode: 500 });
+        res.status(500).json({ Exception: `Exception in add like: ${error}` }, { statusCode: 500 });
     }
 });
 
