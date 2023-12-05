@@ -12,6 +12,20 @@ const secret_key = process.env.SECRET_KEY;
 router.get('/', async function (req, res, next) {
     res.render('index');
 });
+router.get('/abc', async function (req, res, next) {
+    console.log('abc');
+    const secretKey = 'bayqi-secret';
+    // pin = '1122';
+    // const pinCode = CryptoJS.AES.encrypt(pin, 'bayqi-secret').toString();
+    // console.log(pinCode);
+    // Decrypt the password
+    const decryptedBytes = CryptoJS.AES.decrypt('U2FsdGVkX196lPUXA+Oo39HaRED/3u9tXTpvkkbnm7E=', secretKey);
+    const decryptedPassword = decryptedBytes.toString(CryptoJS.enc.Utf8);
+
+    console.log(decryptedPassword);
+
+    res.send('abc');
+});
 
 /*Login and Get Token. */
 router.post('/login', async (req, res, next) => {
