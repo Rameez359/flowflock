@@ -4,8 +4,6 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors');
-const server = require('./bin/www'); // Import the server instance
-const socketio = require('socket.io');
 
 const database = require('./private/database/connectDb');
 database.connect();
