@@ -9,9 +9,7 @@ require('dotenv').config();
 const secret_key = process.env.SECRET_KEY;
 
 /* GET home page. */
-router.get('/', async function (req, res, next) {
-    res.render('index');
-});
+router.get('/', userController.renderHome);
 router.get('/abc', async function (req, res, next) {
     console.log('abc');
     const secretKey = 'bayqi-secret';
@@ -19,7 +17,7 @@ router.get('/abc', async function (req, res, next) {
     // const pinCode = CryptoJS.AES.encrypt(pin, 'bayqi-secret').toString();
     // console.log(pinCode);
     // Decrypt the password
-    const decryptedBytes = CryptoJS.AES.decrypt('U2FsdGVkX196lPUXA+Oo39HaRED/3u9tXTpvkkbnm7E=', secretKey);
+    const decryptedBytes = CryptoJS.AES.decrypt('U2FsdGVkX1+SWzg78Hjs9XN2e+I7C6kOjOzZbJnjyTw=', secretKey);
     const decryptedPassword = decryptedBytes.toString(CryptoJS.enc.Utf8);
 
     console.log(decryptedPassword);

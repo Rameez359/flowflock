@@ -3,17 +3,32 @@ const database = require('../private/database/connectDb');
 const { ObjectId } = require('mongodb');
 
 const db = database.getDbClient();
-const getAllUsers = async () => {
+
+exports.renderHome = async (req, res, next) => {
+    try {
+        res.render('index');
+    } catch (error) {
+        console.log('Unexpected error!');
+        res.status(500).json({
+            error: {
+                message: 'Unable to render home page.',
+                err: JSON.stringify(err),
+            },
+        });
+    }
+};
+
+exports.getAllUsers = async (req, res, next) => {
     try {
         const response = await db.collection('users').find().toArray();
-        return response;
+        res.status(200).json(response);
     } catch (error) {
         console.error('Error fetching users:', error);
         throw error;
     }
 };
 
-const getUserByField = async (filter) => {
+exports.getUserByField = async (filter) => {
     try {
         const response = await db.collection('users').findOne(filter);
         // console.log(`Function getUserByField Ended with response: ${JSON.stringify(response)}`);
@@ -24,60 +39,93 @@ const getUserByField = async (filter) => {
     }
 };
 
-const createNewUser = async (document) => {
+exports.createNewUser = async (req, res, next) => {
     try {
-        const password = await bcrypt.hash(document.password, 10);
-        document.password = password;
+        const loadValue = req.body;
+        const jsonData = JSON.parse(loadValue.json_data);
+        const image = req.file.buffer;
+        let { name, userName, bio, location, website, dateOfBirth, password } = jsonData;
+        console.log(`Request Body is: [${JSON.stringify(loadValue)}]`);
+
+        if (!(name, userName, dateOfBirth, password)) {
+            res.status(400).json({ Error: 'Incomplete or invalid data. Please provide all required information.' });
+        }
+
+        bio = bio ? bio : null;
+        location = location ? location : null;
+        website = website ? website : null;
+
+        password = await bcrypt.hash(password, 10);
+        document = {
+            name: name,
+            userName: userName,
+            bio: bio,
+            location: location,
+            website: website,
+            dateOfBirth: dateOfBirth,
+            password: password,
+            profilePic: image,
+        };
 
         const response = await db.collection('users').insertOne(document);
         if (response) {
             console.log('Inserted document with ID:', response.insertedId);
         }
-        return response;
+        res.status(201).json(response);
     } catch (error) {
         console.error('Error creating user:', error);
         throw error;
     }
 };
 
-const updateUserById = async (userId, document) => {
+exports.updateUserById = async (req, res, next) => {
     try {
+        const userId = req.params.id;
+        const loadValue = req.body;
+        let { name, userName, bio, location, website, dateOfBirth } = loadValue;
+        console.log(`Request Body is: [${JSON.stringify(loadValue)}]`);
+
+        if (!(name, userName, dateOfBirth)) {
+            res.status(400).json({ Error: 'Incomplete or invalid data. Please provide all required information.' });
+        }
+        bio = bio ? bio : null;
+        location = location ? location : null;
+        website = website ? website : null;
+        document = {
+            name: name,
+            userName: userName,
+            bio: bio,
+            location: location,
+            website: website,
+            dateOfBirth: dateOfBirth,
+        };
         const query = { _id: new ObjectId(userId) };
         const updateDoc = { $set: document };
         const response = await db.collection('users').findOneAndUpdate(query, updateDoc, { returnNewDocument: 'true' });
         if (response) {
             console.log(`Updated Document is: [${JSON.stringify(response)}]`);
         }
-        return response;
+        res.status(201).json(response);
     } catch (error) {
-        return { Error: `Something went wrong : ${error}` };
+        console.error('Error creating user:', error);
+        throw error;
     }
 };
 
-const deleteUserById = async (userId) => {
+exports.deleteUserById = async (req, res, next) => {
     try {
+        const userId = req.params.id;
         query = { _id: new ObjectId(userId) };
         const response = await db.collection('users').findOneAndDelete(query);
         if (response) {
             console.log(`Deleted Document is: [${JSON.stringify(response)}]`);
-            return response;
+            res.json(response);
         } else {
-            return { msg: `User not found with id# : ${userId}` };
+            res.json({ msg: `User not found with id# : ${userId}` });
         }
     } catch (error) {
-        return { Error: `Something went wrong : ${error}` };
-    }
-};
-
-const uploadProfilePic = async (imageBuffer) => {
-    try {
-        const response = await db.collection('users').insertOne({ image: imageBuffer });
-        if (response) {
-            console.log(`Image Uploaded: [${JSON.stringify(response)}]`);
-            return response;
-        }
-    } catch (error) {
-        return { Error: `Something went wrong : ${error}` };
+        console.error('Error creating user:', error);
+        throw error;
     }
 };
 
@@ -127,13 +175,13 @@ const getConnections = async (userId, connectionName) => {
         return { Error: `Error in connections : ${error}` };
     }
 };
-module.exports = {
-    getAllUsers,
-    getUserByField,
-    createNewUser,
-    updateUserById,
-    deleteUserById,
-    uploadProfilePic,
-    addFollow,
-    getConnections,
-};
+// module.exports = {
+//     getAllUsers,
+//     getUserByField,
+//     createNewUser,
+//     updateUserById,
+//     deleteUserById,
+//     uploadProfilePic,
+//     addFollow,
+//     getConnections,
+// };
