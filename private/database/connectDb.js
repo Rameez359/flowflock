@@ -1,4 +1,4 @@
-const {MongoClient} = require('mongodb');
+const { MongoClient } = require('mongodb');
 require('dotenv').config();
 const username = process.env.USER_NAME;
 const password = process.env.PASSWORD;
@@ -11,21 +11,22 @@ async function connect() {
         client = new MongoClient(url);
         try {
             await client.connect();
-            await client.db("xTwitter").command({ ping: 1 });// Send a ping to confirm a successful connection
+            await client.db('xTwitter').command({ ping: 1 }); // Send a ping to confirm a successful connection
             console.log(`Pinged your deployment. You successfully connected to MongoDB!`);
-        } catch(error){
-            console.error("Error in connection",error);
+        } catch (error) {
+            console.error('Error in connection', error);
         }
     }
 }
-function getClient() {
+function getDbClient() {
     if (!client) {
         throw new Error('Database connection has not been established.');
     }
-      return client;  
-    }
+    const db = client.db('xTwitter');
+    return db;
+}
 module.exports = {
     connect,
-    getClient
-}
-    // run().catch(console.dir)
+    getDbClient,
+};
+// run().catch(console.dir)
