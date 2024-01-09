@@ -1,5 +1,5 @@
 const bcrypt = require('bcrypt');
-const database = require('../private/database/connectDb');
+const database = require('../../private/database/connectDb');
 const { ObjectId } = require('mongodb');
 
 const db = database.getDbClient();

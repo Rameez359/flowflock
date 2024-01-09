@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 router.use(bodyParser.json());
-router.use(verifyToken);
+// router.use(verifyToken);
 
 /* GET users listing. */
 router.get('/', userController.getAllUsers);

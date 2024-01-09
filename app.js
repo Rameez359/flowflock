@@ -17,13 +17,13 @@ const corsOptions = {
     // Add more options as needed
 };
 
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.static(path.resolve(__dirname, 'client')));
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-var flocksRouter = require('./routes/flocks');
-var feedRouter = require('./routes/feed');
+var indexRouter = require('./apis/routes/index');
+var usersRouter = require('./apis/routes/users');
+var flocksRouter = require('./apis/routes/flocks');
+var feedRouter = require('./apis/routes/feed');
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -35,7 +35,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+app.use('/', require('./apis/routes/index'));
 app.use('/users', usersRouter);
 app.use('/flocks', flocksRouter);
 app.use('/feed', feedRouter);
