@@ -42,9 +42,9 @@ exports.getUserByField = async (filter) => {
 exports.createNewUser = async (req, res, next) => {
     try {
         const loadValue = req.body;
-        const jsonData = JSON.parse(loadValue.json_data);
-        const image = req.file.buffer;
-        let { name, userName, bio, location, website, dateOfBirth, password } = jsonData;
+        // const jsonData = JSON.parse(loadValue);
+        // const image = req.file.buffer;
+        let { name, userName, bio, location, website, dateOfBirth, password } = loadValue;
         console.log(`Request Body is: [${JSON.stringify(loadValue)}]`);
 
         if (!(name, userName, dateOfBirth, password)) {
@@ -64,7 +64,7 @@ exports.createNewUser = async (req, res, next) => {
             website: website,
             dateOfBirth: dateOfBirth,
             password: password,
-            profilePic: image,
+            // profilePic: image,
         };
 
         const response = await db.collection('users').insertOne(document);
