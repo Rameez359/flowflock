@@ -7,4 +7,5 @@ const storage = multer.diskStorage({
       cb(null, Date.now() + '-' + file.originalname); // Unique file name
     },
   });
+
   module.exports = storage;
