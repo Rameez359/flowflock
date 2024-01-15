@@ -4,13 +4,17 @@ const GoogleStrategy = require('passport-google-oauth2').Strategy;
 require('dotenv').config();
 
 const secret_key = process.env.SECRET_KEY;
+const clientID = process.env.CLIENT_ID;
+const clientSecret = process.env.CLIENT_SECRET;
+const callbackURL = process.env.CALLBACK_URL
 
+console.log(`${clientID} \n ${clientSecret} \n ${callbackURL} \n `)
 passport.use(
     new GoogleStrategy(
         {
-            clientID: '670066915033-oqil69hb9up03plshaa2p1b7egpf353c.apps.googleusercontent.com',
-            clientSecret: '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',
-            callbackURL: 'http://localhost:3000/signupwithGoogle/callback',
+            clientID: clientID,
+            clientSecret: clientSecret,
+            callbackURL: callbackURL,
             passReqToCallback: true,
         },
         function (req, accessToken, refreshToken, profile, done) {
