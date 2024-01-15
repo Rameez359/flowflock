@@ -4,7 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors');
-
+const passport = require('passport');
 const database = require('./private/database/connectDb');
 database.connect();
 
@@ -18,6 +18,7 @@ const corsOptions = {
 };
 
 app.use(cors());
+
 app.use(express.static(path.resolve(__dirname, 'client')));
 
 var indexRouter = require('./apis/routes/index');
