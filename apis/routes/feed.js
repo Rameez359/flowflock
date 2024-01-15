@@ -3,7 +3,7 @@ const verifyToken = require('../controllers/verifyToken');
 const feedController = require('../controllers/feedController');
 var router = express.Router();
 
-router.use(verifyToken);
+// router.use(verifyToken);
 
 router.get('/', async (req, res, next) => {
     const { userId, userName } = req.decoded;

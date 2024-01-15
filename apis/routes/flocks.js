@@ -3,7 +3,7 @@ const verifyToken = require('../controllers/verifyToken');
 const flockController = require('../controllers/flockController');
 var router = express.Router();
 
-router.use(verifyToken);
+// router.use(verifyToken.verifyToken);
 
 router.get('/', async (req, res, next) => {
     const { userId, userName } = req.decoded;
