@@ -1,14 +1,17 @@
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth2').Strategy;
+const database = require('../../private/database/connectDb');
+const { returnRes, sendMail, generateCode } = require('./commonController');
 require('dotenv').config();
+
+const db = database.getDbClient();
 
 const secret_key = process.env.SECRET_KEY;
 const clientID = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
-const callbackURL = process.env.CALLBACK_URL
+const callbackURL = process.env.CALLBACK_URL;
 
-console.log(`${clientID} \n ${clientSecret} \n ${callbackURL} \n `)
 passport.use(
     new GoogleStrategy(
         {
@@ -36,7 +39,7 @@ passport.deserializeUser((id, done) => {
     // Retrieve user information from the database based on the serialized user ID
     // Replace the following line with your actual database query logic
     const user = findUserById(id);
-    
+
     // Note: Handle errors appropriately
     done(null, user);
 });
@@ -45,7 +48,7 @@ passport.deserializeUser((id, done) => {
 function findUserById(id) {
     // Your database query logic goes here
     // Return user information based on the provided ID
-    return { id: id, /* other user properties */ };
+    return { id: id /* other user properties */ };
 }
 const verifyToken = (req, res, next) => {
     const token = req.headers.authorization;
@@ -62,13 +65,36 @@ const verifyToken = (req, res, next) => {
     });
 };
 
-const localSignupStepOne = (req, res, next) => {
-    console.log(`Local SignUp body start with request : [${JSON.stringify[req.body]}]`);
+const localSignupStepOne = async (req, res, next) => {
+    console.log(`Local SignUp body start with request : [${JSON.stringify(req.body)}]`);
+
     const { name, email, dateOfBirth } = req.body;
-}
+    if (!(name && email && dateOfBirth)) returnRes('Incomplete Information', 400, res);
+
+    const newUser = req.body;
+    const date = new Date();
+    newUser.createdAt = date;
+    newUser.updatedAt = date;
+
+    const verificationCode = generateCode();
+    newUser.verificationCode = verificationCode;
+    const userResp = await db.collection('NewUsers').insertOne(req.body);
+
+    if (userResp) {
+        const mailOptions = {
+            from: 'alirameez820@gmail.com', // Sender address
+            to: email, // Recipient address
+            subject: 'Verification of FlowFlock Account',
+            text: `This is a varification email from FlowFlock. Please verify your account by entring given code. \n ${verificationCode}`,
+        };
+        const sendmail = sendMail(mailOptions);
+        if (sendmail) returnRes('Verification code has been sent to user Gmail account', 200, res);
+        else returnRes('Something went wrong in sending gmail to user', 400, res);
+    } else returnRes('Something went wrong in inserting user', 400, res);
+};
 
 const signupWithGoogle = (req, res, next) => {
     passport.authenticate('google', { scope: ['email', 'profile'] });
 };
 
-module.exports = { verifyToken, signupWithGoogle };
+module.exports = { verifyToken, signupWithGoogle, localSignupStepOne };
