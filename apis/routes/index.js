@@ -64,7 +64,7 @@ router.post('/login', async (req, res, next) => {
         res.json({ Error: `Something went wrong : ${error}` });
     }
 });
-
+router.get('/localSignupStepOne', verifyAccount.localSignupStepOne);
 router.get('/signupWithGoogle', verifyAccount.signupWithGoogle);
 router.get(
     '/signupWithGoogle/callback',
