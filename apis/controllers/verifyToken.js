@@ -82,19 +82,31 @@ const localSignupStepOne = async (req, res, next) => {
 
     if (userResp) {
         const mailOptions = {
-            from: 'alirameez820@gmail.com', // Sender address
-            to: email, // Recipient address
+            from: 'alirameez820@gmail.com',
+            to: email,
             subject: 'Verification of FlowFlock Account',
-            text: `This is a varification email from FlowFlock. Please verify your account by entring given code. \n ${verificationCode}`,
+            text: `This is a verification email from FlowFlock. Please verify your account by entering the given code. \n ${verificationCode}`,
         };
+
         const sendmail = sendMail(mailOptions);
+
         if (sendmail) returnRes('Verification code has been sent to user Gmail account', 200, res);
         else returnRes('Something went wrong in sending gmail to user', 400, res);
     } else returnRes('Something went wrong in inserting user', 400, res);
 };
 
-const signupWithGoogle = (req, res, next) => {
-    passport.authenticate('google', { scope: ['email', 'profile'] });
-};
+const localSignupStepTwo = async (req, res, next) => {
+    console.log(`Verify Account body start with request : [${JSON.stringify(req.body)}]`);
 
-module.exports = { verifyToken, signupWithGoogle, localSignupStepOne };
+    const { userId, code } = req.body;
+    const user = await db.collection('NewUsers').findOne({ _id: userId });
+    if (!user) returnRes('User not found', 400, res);
+
+    if (user.verificationCode === code) {
+        const updateUser = await db
+            .collection('NewUsers')
+            .findOneAndUpdate({ _id: userId }, { $set: { status: 'APPROVED' } }, { returnNewDocument: 'true' });
+        returnRes('User has been verified successfully', 200, res);
+    } else returnRes('Invalid Verification Code', 400, res);
+};
+module.exports = { verifyToken, localSignupStepOne, localSignupStepTwo };
