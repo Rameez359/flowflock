@@ -64,18 +64,11 @@ router.post('/login', async (req, res, next) => {
         res.json({ Error: `Something went wrong : ${error}` });
     }
 });
-router.post('/localSignupStepOne', verifyAccount.localSignupStepOne);
-// router.get('/signupWithGoogle', verifyAccount.signupWithGoogle);
-// router.get(
-//     '/signupWithGoogle/callback',
-//     passport.authenticate('google', {
-//         successRedirect: '/auth/google/success',
-//         failureRedirect: '/auth/google/failure',
-//     })
-// );
 
-router.get('/auth/google/success', (req, res) => {
-    res.json({ hello: 'heello' });
-});
+// Create user temporary account.
+router.post('/localSignupStepOne', verifyAccount.localSignupStepOne);
+
+// Verify gmail account by verification code.
+router.post('/localSignupStepTwo', verifyAccount.localSignupStepTwo)
 
 module.exports = router;
