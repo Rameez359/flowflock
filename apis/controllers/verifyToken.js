@@ -12,44 +12,6 @@ const clientID = process.env.CLIENT_ID;
 const clientSecret = process.env.CLIENT_SECRET;
 const callbackURL = process.env.CALLBACK_URL;
 
-passport.use(
-    new GoogleStrategy(
-        {
-            clientID: clientID,
-            clientSecret: clientSecret,
-            callbackURL: callbackURL,
-            passReqToCallback: true,
-        },
-        (req, accessToken, refreshToken, profile, done) => {
-            // Note: 'err' should be replaced with 'null' to avoid a reference error
-            console.log(profile);
-
-            // Pass the user data to the next middleware or route handler
-            done(null, profile);
-        }
-    )
-);
-
-passport.serializeUser((user, done) => {
-    // Use a unique identifier from the user profile (like user ID) for serialization
-    done(null, user.id);
-});
-
-passport.deserializeUser((id, done) => {
-    // Retrieve user information from the database based on the serialized user ID
-    // Replace the following line with your actual database query logic
-    const user = findUserById(id);
-
-    // Note: Handle errors appropriately
-    done(null, user);
-});
-
-// Example function to find a user by ID (replace this with your database logic)
-function findUserById(id) {
-    // Your database query logic goes here
-    // Return user information based on the provided ID
-    return { id: id /* other user properties */ };
-}
 const verifyToken = (req, res, next) => {
     const token = req.headers.authorization;
     if (!token) {
@@ -79,6 +41,7 @@ const localSignupStepOne = async (req, res, next) => {
     const verificationCode = generateCode();
     newUser.verificationCode = verificationCode;
     const userResp = await db.collection('NewUsers').insertOne(req.body);
+    console.log(`New Temporary User Request Ended with Response: [${JSON.stringify(userResp)}`);
 
     if (userResp) {
         const mailOptions = {
@@ -89,8 +52,11 @@ const localSignupStepOne = async (req, res, next) => {
         };
 
         const sendmail = sendMail(mailOptions);
-
-        if (sendmail) returnRes('Verification code has been sent to user Gmail account', 200, res);
+        const data = {
+            msg: `Verification code has been sent to user's Gmail account`,
+            userId: userResp.insertedId,
+        };
+        if (sendmail) returnRes(data, 200, res);
         else returnRes('Something went wrong in sending gmail to user', 400, res);
     } else returnRes('Something went wrong in inserting user', 400, res);
 };
@@ -109,4 +75,20 @@ const localSignupStepTwo = async (req, res, next) => {
         returnRes('User has been verified successfully', 200, res);
     } else returnRes('Invalid Verification Code', 400, res);
 };
-module.exports = { verifyToken, localSignupStepOne, localSignupStepTwo };
+
+const localSignupStepThree = async (req, res, next) => {
+    console.log(`Create username start with request : [${JSON.stringify(req.body)}]`);
+
+    const { username, userId } = req.body;
+    if (!(username && userId)) returnRes('Please send all required params', 400, res);
+
+    const userData = await db.collection('NewUsers').findOne({ _id: userId });
+    console.log(`User Data Ended with Response: [${JSON.stringify(userData)}`);
+    if (!userData) returnRes('User not found', 400, res);
+
+    userData.username = username;
+    const userResp = await db.collection('users').insertOne(userData);
+    if (userResp.insertedId) returnRes('User has been created successfully', 201, res);
+    else returnRes('Something went wrong in creating new user', 400, res);
+};
+module.exports = { verifyToken, localSignupStepOne, localSignupStepTwo, localSignupStepThree };
