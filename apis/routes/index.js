@@ -71,4 +71,7 @@ router.post('/localSignupStepOne', verifyAccount.localSignupStepOne);
 // Verify gmail account by verification code.
 router.post('/localSignupStepTwo', verifyAccount.localSignupStepTwo)
 
+// Create username.
+router.post('/localSignupStepThree', verifyAccount.localSignupStepThree)
+
 module.exports = router;
