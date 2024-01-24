@@ -12,16 +12,49 @@ require('dotenv').config();
 
 const secret_key = process.env.SECRET_KEY;
 
-router.use(
-    session({
-        secret: 'mysecret',
-        resave: false,
-        saveUninitialized: true,
-        cookie: { secure: false },
-    })
-);
-router.use(passport.initialize());
+var userProfile;
 
+router.use(passport.initialize());
+router.use(passport.session());
+
+passport.serializeUser(function (user, cb) {
+    cb(null, user);
+});
+
+passport.deserializeUser(function (obj, cb) {
+    cb(null, obj);
+});
+
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+passport.use(
+    new GoogleStrategy(
+        {
+            clientID: GOOGLE_CLIENT_ID,
+            clientSecret: GOOGLE_CLIENT_SECRET,
+            callbackURL: 'http://localhost:3000/auth/google/callback',
+        },
+        function (accessToken, refreshToken, profile, done) {
+            userProfile = profile;
+            return done(null, userProfile);
+        }
+    )
+);
+
+router.get('/signupWithGoogle', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get(
+    '/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/error' }),
+    function (req, res) {
+        // Successful authentication, redirect success.
+        res.redirect('/success');
+    }
+);
+
+router.get('/success', (req, res) => res.send(userProfile));
+router.get('/error', (req, res) => res.send('error logging in'));
 /* GET home page. */
 router.get('/', userController.renderHome);
 router.get('/abc', async function (req, res, next) {
@@ -69,9 +102,12 @@ router.post('/login', async (req, res, next) => {
 router.post('/localSignupStepOne', verifyAccount.localSignupStepOne);
 
 // Verify gmail account by verification code.
-router.post('/localSignupStepTwo', verifyAccount.localSignupStepTwo)
+router.post('/localSignupStepTwo', verifyAccount.localSignupStepTwo);
 
 // Create username.
-router.post('/localSignupStepThree', verifyAccount.localSignupStepThree)
+router.post('/localSignupStepThree', verifyAccount.localSignupStepThree);
+
+// Check duplicate username.
+router.post('/checkDuplicateUsername', verifyAccount.checkDuplicateUsername);
 
 module.exports = router;

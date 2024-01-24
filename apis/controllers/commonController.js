@@ -51,9 +51,10 @@ exports.generateCode = () => {
     const max = 9999999; // Maximum 7-digit number
     return Math.floor(Math.random() * (max - min + 1)) + min;
 };
-exports.returnRes = (data, statusCode, res) => {
+exports.returnRes = (data, reqStatus='TRUE', statusCode, res) => {
     res.status(statusCode).json({
         response: data,
+        requestStatus: reqStatus,
         statusCode: statusCode
     });
 };

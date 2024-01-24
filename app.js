@@ -4,6 +4,7 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const cors = require('cors');
+const session = require('express-session');
 const passport = require('passport');
 const database = require('./private/database/connectDb');
 database.connect();
@@ -17,7 +18,21 @@ const corsOptions = {
     // Add more options as needed
 };
 
-app.use(cors());
+app.use(cors({ credentials: true, origin: 'http://localhost:3001' }));
+
+app.use(
+    session({
+        resave: false,
+        saveUninitialized: true,
+        secret: 'SECRET',
+        cookie: {
+            httpOnly: true,
+            sameSite: 'None', // Set to 'None' for cross-origin requests
+            secure: true, // Set to true if using HTTPS
+        },
+    })
+);
+
 
 app.use(express.static(path.resolve(__dirname, 'client')));
 
