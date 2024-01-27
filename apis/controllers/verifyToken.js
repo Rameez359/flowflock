@@ -79,7 +79,7 @@ const localSignupStepTwo = async (req, res, next) => {
 const localSignupStepThree = async (req, res, next) => {
     console.log(`Create username start with request : [${JSON.stringify(req.body)}]`);
 
-    const { username, userId } = req.body;
+    const { username,password, userId } = req.body;
     console.log(`UserID is: ${userId}`);
     if (!(username && userId)) returnRes('Please send all required params','FALSE', 400, res);
 
@@ -92,6 +92,7 @@ const localSignupStepThree = async (req, res, next) => {
         username: username,
         email: userData.email,
         dateOfBirth: userData.dateOfBirth,
+        password: userData.password,
         createdAt: userData.createdAt,
         updatedAt: userData.updatedAt,
     };
