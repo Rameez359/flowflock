@@ -31,7 +31,7 @@ const localSignupStepOne = async (req, res, next) => {
     console.log(`Local SignUp body start with request : [${JSON.stringify(req.body)}]`);
 
     const { name, email, dateOfBirth } = req.body;
-    if (!(name && email && dateOfBirth)) returnRes('Incomplete Information','FALSE', 400, res);
+    if (!(name && email && dateOfBirth)) returnRes('Incomplete Information', 'FALSE', 400, res);
 
     const newUser = req.body;
     const date = new Date();
@@ -57,8 +57,8 @@ const localSignupStepOne = async (req, res, next) => {
             userId: userResp.insertedId,
         };
         if (sendmail) returnRes(data, 'TRUE', 200, res);
-        else returnRes('Something went wrong in sending gmail to user','FALSE', 400, res);
-    } else returnRes('Something went wrong in inserting user','FALSE', 400, res);
+        else returnRes('Something went wrong in sending gmail to user', 'FALSE', 400, res);
+    } else returnRes('Something went wrong in inserting user', 'FALSE', 400, res);
 };
 
 const localSignupStepTwo = async (req, res, next) => {
@@ -66,26 +66,26 @@ const localSignupStepTwo = async (req, res, next) => {
 
     const { userId, code } = req.body;
     const user = await db.collection('NewUsers').findOne({ _id: new ObjectId(userId) });
-    if (!user) returnRes('User not found','FALSE', 400, res);
+    if (!user) returnRes('User not found', 'FALSE', 400, res);
 
     if (user.verificationCode === parseInt(code)) {
         await db
             .collection('NewUsers')
             .findOneAndUpdate({ _id: userId }, { $set: { status: 'APPROVED' } }, { returnNewDocument: 'true' });
-        returnRes('User has been verified successfully','TRUE', 200, res);
-    } else returnRes('Invalid Verification Code','FALSE', 400, res);
+        returnRes('User has been verified successfully', 'TRUE', 200, res);
+    } else returnRes('Invalid Verification Code', 'FALSE', 400, res);
 };
 
 const localSignupStepThree = async (req, res, next) => {
     console.log(`Create username start with request : [${JSON.stringify(req.body)}]`);
 
-    const { username,password, userId } = req.body;
+    const { username, password, userId } = req.body;
     console.log(`UserID is: ${userId}`);
-    if (!(username && userId)) returnRes('Please send all required params','FALSE', 400, res);
+    if (!(username && userId)) returnRes('Please send all required params', 'FALSE', 400, res);
 
     const userData = await db.collection('NewUsers').findOne({ _id: new ObjectId(userId) });
     console.log(`User Data Ended with Response: [${JSON.stringify(userData)}`);
-    if (!userData) returnRes('User not found','FALSE', 400, res);
+    if (!userData) returnRes('User not found', 'FALSE', 400, res);
 
     const newUser = {
         name: userData.name,
@@ -100,7 +100,7 @@ const localSignupStepThree = async (req, res, next) => {
     const userResp = await db.collection('users').insertOne(newUser);
     await db.collection('newUser').deleteOne({ _id: new ObjectId(userId) });
 
-    if (!userResp.insertedId) returnRes('Something went wrong in creating new user','FALSE', 400, res);
+    if (!userResp.insertedId) returnRes('Something went wrong in creating new user', 'FALSE', 400, res);
     const mailOptions = {
         from: 'alirameez359@gmail.com',
         to: newUser.email,
@@ -108,15 +108,30 @@ const localSignupStepThree = async (req, res, next) => {
         text: `Thanks for creating your account on Flow Flock. Your account has been created with the username ${username}`,
     };
     const sendmail = sendMail(mailOptions);
-    if (sendmail) returnRes('User has been created successfully','TRUE', 201, res);
+    if (sendmail) returnRes('User has been created successfully', 'TRUE', 201, res);
 };
 
 const checkDuplicateUsername = async (req, res, next) => {
-    console.log(`Create username start with request : [${JSON.stringify(req.body)}]`);
+    console.log(`Verify username start with request : [${JSON.stringify(req.body)}]`);
     const { username } = req.body;
 
-    const checkUsername = await db.collection('users').findOne({username: username});
-    if(checkUsername) returnRes('Username already found','FALSE', 200, res);
-    else returnRes('No username found','TRUE', 200, res);
+    const checkUsername = await db.collection('users').findOne({ username: username });
+    if (checkUsername) returnRes('Username already found', 'FALSE', 200, res);
+    else returnRes('No username found', 'TRUE', 200, res);
 };
-module.exports = { verifyToken, localSignupStepOne, localSignupStepTwo, localSignupStepThree, checkDuplicateUsername };
+
+const checkDuplicateAccount = async (req, res, next) => {
+    console.log(`Check duplicate start with request : [${JSON.stringify(req.query)}]`);
+    const { email } = req.query;
+    const checkAccount = await db.collection('users').findOne({ email: email });
+    if (checkAccount) returnRes('Account already found', 'FALSE', 200, res);
+    else returnRes('No account found', 'TRUE', 200, res);
+};
+module.exports = {
+    verifyToken,
+    localSignupStepOne,
+    localSignupStepTwo,
+    localSignupStepThree,
+    checkDuplicateUsername,
+    checkDuplicateAccount,
+};
