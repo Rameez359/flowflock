@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const CryptoJS = require('crypto-js');
 const database = require('../../private/database/connectDb');
 const { returnRes, sendMail, generateCode } = require('./commonController');
 const { ObjectId } = require('mongodb');
@@ -87,18 +88,19 @@ const localSignupStepThree = async (req, res, next) => {
     console.log(`User Data Ended with Response: [${JSON.stringify(userData)}`);
     if (!userData) returnRes('User not found', 'FALSE', 400, res);
 
+    const encryptPassword = CryptoJS.AES.encrypt(password, secret_key).toString();
     const newUser = {
         name: userData.name,
         username: username,
         email: userData.email,
         dateOfBirth: userData.dateOfBirth,
-        password: userData.password,
+        password: encryptPassword,
         createdAt: userData.createdAt,
         updatedAt: userData.updatedAt,
     };
 
     const userResp = await db.collection('users').insertOne(newUser);
-    await db.collection('newUser').deleteOne({ _id: new ObjectId(userId) });
+    await db.collection('NewUsers').deleteOne({ _id: new ObjectId(userId) });
 
     if (!userResp.insertedId) returnRes('Something went wrong in creating new user', 'FALSE', 400, res);
     const mailOptions = {
@@ -114,6 +116,7 @@ const localSignupStepThree = async (req, res, next) => {
 const checkDuplicateUsername = async (req, res, next) => {
     console.log(`Verify username start with request : [${JSON.stringify(req.body)}]`);
     const { username } = req.body;
+    if (!username) returnRes('Please send all required params', 'FALSE', 400, res);
 
     const checkUsername = await db.collection('users').findOne({ username: username });
     if (checkUsername) returnRes('Username already found', 'FALSE', 200, res);
@@ -123,9 +126,32 @@ const checkDuplicateUsername = async (req, res, next) => {
 const checkDuplicateAccount = async (req, res, next) => {
     console.log(`Check duplicate start with request : [${JSON.stringify(req.query)}]`);
     const { email } = req.query;
+    if (!email) returnRes('Please send all required params', 'FALSE', 400, res);
+
     const checkAccount = await db.collection('users').findOne({ email: email });
     if (checkAccount) returnRes('Account already found', 'FALSE', 200, res);
     else returnRes('No account found', 'TRUE', 200, res);
+};
+
+const localSignIn = async (req, res, next) => {
+    console.log(`Local SignIn start with request : [${JSON.stringify(req.body)}]`);
+    const { username_mail, password } = req.body;
+    if (!(username_mail && password)) returnRes('Please send all required params', 'FALSE', 400, res);
+
+    const verifyUser = await db
+        .collection('users')
+        .findOne({ $or: [{ username: username_mail }, { email: username_mail }] });
+    if (!verifyUser) returnRes('Account not found', 'FALSE', 404, res);
+
+    const data = {
+        msg: 'User has been signed successfully',
+        userId: verifyUser._id,
+        username: verifyUser.username,
+    };
+
+    const decryptPassword = CryptoJS.AES.decrypt(verifyUser.password, secret_key).toString(CryptoJS.enc.Utf8);
+    if (password === decryptPassword) returnRes(data, 'TRUE', 200, res);
+    else returnRes('Incorrect Password', 'FALSE', 401, res);
 };
 module.exports = {
     verifyToken,
@@ -134,4 +160,5 @@ module.exports = {
     localSignupStepThree,
     checkDuplicateUsername,
     checkDuplicateAccount,
+    localSignIn,
 };

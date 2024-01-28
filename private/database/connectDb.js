@@ -11,7 +11,7 @@ async function connect() {
         client = new MongoClient(url);
         try {
             await client.connect();
-            await client.db('xTwitter').command({ ping: 1 }); // Send a ping to confirm a successful connection
+            await client.db('FlowFlock').command({ ping: 1 }); // Send a ping to confirm a successful connection
             console.log(`Pinged your deployment. You successfully connected to MongoDB!`);
         } catch (error) {
             console.error('Error in connection', error);
@@ -22,7 +22,7 @@ function getDbClient() {
     if (!client) {
         throw new Error('Database connection has not been established.');
     }
-    const db = client.db('xTwitter');
+    const db = client.db('FlowFlock');
     return db;
 }
 module.exports = {
