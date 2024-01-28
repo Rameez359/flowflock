@@ -113,4 +113,7 @@ router.post('/checkDuplicateUsername', verifyAccount.checkDuplicateUsername);
 // Check duplicate account.
 router.get('/checkDuplicateAccount', verifyAccount.checkDuplicateAccount);
 
+// Check signin account.
+router.post('/localSignIn', verifyAccount.localSignIn);
+
 module.exports = router;
