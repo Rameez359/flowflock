@@ -143,15 +143,23 @@ const localSignIn = async (req, res, next) => {
         .findOne({ $or: [{ username: username_mail }, { email: username_mail }] });
     if (!verifyUser) returnRes('Account not found', 'FALSE', 404, res);
 
+    const decryptPassword = CryptoJS.AES.decrypt(verifyUser.password, secret_key).toString(CryptoJS.enc.Utf8);
+    if (password !== decryptPassword) returnRes('Incorrect Password', 'FALSE', 401, res);
+    const mailOptions = {
+        from: 'alirameez359@gmail.com',
+        to: newUser.email,
+        subject: 'SIGN -IN',
+        text: `Your account is recently signed in. If you not signed in then please update your password.`,
+    };
+    const sendmail = sendMail(mailOptions);
+
     const data = {
         msg: 'User has been signed successfully',
         userId: verifyUser._id,
         username: verifyUser.username,
     };
-
-    const decryptPassword = CryptoJS.AES.decrypt(verifyUser.password, secret_key).toString(CryptoJS.enc.Utf8);
-    if (password === decryptPassword) returnRes(data, 'TRUE', 200, res);
-    else returnRes('Incorrect Password', 'FALSE', 401, res);
+    if (sendmail) returnRes('User has been created successfully', 'TRUE', 201, res);
+    // returnRes(data, 'TRUE', 200, res);
 };
 module.exports = {
     verifyToken,
