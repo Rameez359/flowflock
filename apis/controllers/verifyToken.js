@@ -158,8 +158,8 @@ const localSignIn = async (req, res, next) => {
         userId: verifyUser._id,
         username: verifyUser.username,
     };
-    if (sendmail) returnRes('User has been created successfully', 'TRUE', 201, res);
-    // returnRes(data, 'TRUE', 200, res);
+    if (sendmail) returnRes(data, 'TRUE', 200, res);
+
 };
 module.exports = {
     verifyToken,
