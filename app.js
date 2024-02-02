@@ -27,8 +27,8 @@ app.use(
         secret: 'SECRET',
         cookie: {
             httpOnly: true,
-            sameSite: 'None', // Set to 'None' for cross-origin requests
-            secure: true, // Set to true if using HTTPS
+            sameSite: 'None',
+            secure: true,
         },
     })
 );
