@@ -19,4 +19,14 @@ router.get('/get_feed', async (req, res, next) => {
         res.status(500).json({ Exception: `Exception in get feed: ${error}` });
     }
 });
+router.get('/update_feed', async (req, res, next) => {
+    try {
+        const userId = req.decoded.userId;
+        console.log(`user id ${userId}`);
+        const result = await feedController.getUpdateFeed(userId);
+        res.status(result?.statusCode).json({ response: result.response });
+    } catch (error) {
+        res.status(500).json({ Exception: `Exception in get feed: ${error}` });
+    }
+});
 module.exports = router;
