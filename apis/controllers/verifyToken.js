@@ -147,7 +147,7 @@ const localSignIn = async (req, res, next) => {
     if (password !== decryptPassword) returnRes('Incorrect Password', 'FALSE', 401, res);
     const mailOptions = {
         from: 'alirameez359@gmail.com',
-        to: newUser.email,
+        to: verifyUser.email,
         subject: 'SIGN -IN',
         text: `Your account is recently signed in. If you not signed in then please update your password.`,
     };
@@ -159,7 +159,6 @@ const localSignIn = async (req, res, next) => {
         username: verifyUser.username,
     };
     if (sendmail) returnRes(data, 'TRUE', 200, res);
-
 };
 module.exports = {
     verifyToken,
